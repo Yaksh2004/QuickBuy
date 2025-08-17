@@ -1,6 +1,8 @@
 import {BrowserRouter, Routes, Route, Link, useNavigate, Outlet} from 'react-router-dom'
+import Cart from './Cart'
+import Products from './Products'
 import Home from './Home'
-import About from './About'
+
 
 function App() {
 
@@ -10,7 +12,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
-          <Route path="about" element={<About />} />
+          <Route path='products' element={<Products />} />
+          <Route path="cart" element={<Cart />} />
         </Route>
       </Routes>
     </BrowserRouter>
@@ -23,7 +26,8 @@ function Layout() {
     <div className='h-screen '>
       <div className='flex gap-5  justify-center h-[5vh] items-center'>
         <Link to={"/"}>Home</Link>
-        <Link to={"/about"}>About</Link>
+        <Link to={"/products"}>Products</Link>
+        <Link to={"/cart"}>Cart</Link>
       </div>
       <div className='h-[90vh] flex flex-col justify-center items-center'>
         <Outlet />
@@ -34,5 +38,7 @@ function Layout() {
     </div>
   )
 }
+
+
 
 export default App
