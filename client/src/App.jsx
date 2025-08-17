@@ -23,16 +23,16 @@ function App() {
 
 function Layout() {
   return (
-    <div className='h-screen '>
-      <div className='flex gap-5  justify-center h-[5vh] items-center'>
+    <div className='flex flex-col justify-between items-center h-screen '>
+      <div className='flex gap-10 justify-center items-center p-8'>
         <Link to={"/"}>Home</Link>
         <Link to={"/products"}>Products</Link>
         <Link to={"/cart"}>Cart</Link>
       </div>
-      <div className='h-[90vh] flex flex-col justify-center items-center'>
+      <div className='flex flex-col justify-center items-center'>
         <Outlet />
       </div>
-      <div className='flex gap-5  justify-center h-[5vh] items-center'>
+      <div className='flex gap-5 p-10 justify-center items-center'>
         Footer
       </div>
     </div>
