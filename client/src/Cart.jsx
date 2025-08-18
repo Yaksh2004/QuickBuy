@@ -62,6 +62,6 @@ function CartProduct(props) {
                 <div className="text-sm font-semibold">₹{props.price}</div>
             </div>
         </div>
-        <div><Counter /></div>
+        <div><Counter count={1} /></div>
     </div>)
 }
