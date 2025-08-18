@@ -37,10 +37,6 @@ function App() {
       }) 
   }
 
-  useEffect(() => {
-    console.log("Cart updated:", cart);
-  }, [cart]);
-
   return (
     <>
     <BrowserRouter>

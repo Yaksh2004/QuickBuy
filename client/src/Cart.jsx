@@ -1,5 +1,5 @@
 import Counter from "./Counter";
-import { useNavigate, Outlet } from "react-router-dom";
+import { useNavigate, Outlet, useOutletContext } from "react-router-dom";
 import { productsData } from "./productsData";
 import { useState, useEffect } from "react";
 
@@ -10,6 +10,8 @@ export default function Cart({ cart, increase, decrease }) {
     const [grand, setGrand] = useState(0);
     const [savings, setSavings] = useState(0);
     const [discount, setDiscount] = useState(0);
+    const [selectedCoupon, setSelectedCoupon] = useState(null);
+
 
     useEffect(() => {
         let total = 0;
@@ -19,12 +21,25 @@ export default function Cart({ cart, increase, decrease }) {
         });
 
         const del = total > 0 && total < 300 ? 40 : 0;
-        const save = total > 300 ? 40 : 0;
+        const save = del == 0 && total >= 300 ? 40 + discount : discount;
         setItemTotal(total);
         setDelivery(del);
         setSavings(save);
-        setGrand(total + del);
-    }, [cart]);
+        setGrand(total + del - discount);
+    }, [cart, discount]);
+
+    useEffect(() => {
+        if (selectedCoupon && itemTotal < selectedCoupon.minValue) {
+            setDiscount(0);            
+            setSelectedCoupon(null);   
+        }
+    }, [itemTotal, selectedCoupon]);
+
+
+    const applyDiscount = (discountValue, coupon) => {
+        setDiscount(discountValue);
+        setSelectedCoupon(coupon); 
+};
 
 
     return (
@@ -33,10 +48,10 @@ export default function Cart({ cart, increase, decrease }) {
                 My Cart
             </div>
             <div className="rounded-2xl px-8 py-6 items-center bg-white mx-4 flex justify-between">
-                <div className="font-bold text-sm">Apply Coupons</div>
+                <div className="font-bold text-sm">Apply Coupon</div>
                 <button onClick={() => navigate("coupons")} className="cursor-pointer rounded-md hover:bg-red-600 hover:text-white transition border border-red-600 font-bold text-sm px-5 py-1 text-red-600">Apply</button>
             </div>
-            <Outlet />
+            <Outlet context={{ itemTotal, applyDiscount, selectedCoupon, setSelectedCoupon }} />
             <div className="flex rounded-2xl flex-col gap-8 px-8 py-6 bg-white mx-4">
                 {Object.entries(cart).length === 0 ? (
                     <div className="text-center text-sm font-bold">Your cart is empty</div>
@@ -67,7 +82,7 @@ export default function Cart({ cart, increase, decrease }) {
                 </div>
                 <div className="ml-1 flex text-sm justify-between">
                     <div>Discount</div>
-                    <div>₹0</div>
+                    <div>- ₹{discount}</div>
                 </div>
                 <div className="flex justify-between mt-1 font-bold">
                     <div>Grand total</div>
@@ -78,8 +93,8 @@ export default function Cart({ cart, increase, decrease }) {
                 </div>
             </div>
             <button className="flex cursor-pointer hover:bg-green-700 transition bg-green-600 rounded-md px-4 py-3 mx-4 justify-between text-white">
-                <span className="font-bold ">₹0</span>
-                <span>Checkout</span>
+                <span className="font-bold ">₹{grand}</span>
+                <span>Checkout &gt;&gt;</span>
             </button>
         </div>
     )
