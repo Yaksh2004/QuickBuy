@@ -1,9 +1,32 @@
 import Counter from "./Counter";
 import { useNavigate, Outlet } from "react-router-dom";
+import { productsData } from "./productsData";
+import { useState, useEffect } from "react";
 
-
-export default function Cart() {
+export default function Cart({ cart, increase, decrease }) { 
     const navigate = useNavigate();
+    const [itemTotal, setItemTotal] = useState(0);
+    const [delivery, setDelivery] = useState(0);
+    const [grand, setGrand] = useState(0);
+    const [savings, setSavings] = useState(0);
+    const [discount, setDiscount] = useState(0);
+
+    useEffect(() => {
+        let total = 0;
+        Object.entries(cart).forEach(([id, quantity]) => {
+            const product = productsData.find(p => p.id === parseInt(id));
+            if (product) total += product.price * quantity;
+        });
+
+        const del = total > 0 && total < 300 ? 40 : 0;
+        const save = total > 300 ? 40 : 0;
+        setItemTotal(total);
+        setDelivery(del);
+        setSavings(save);
+        setGrand(total + del);
+    }, [cart]);
+
+
     return (
         <div className="w-full max-w-3xl flex flex-col gap-5 py-5 ">
             <div className="bg-white rounded-2xl text-lg font-semibold mx-4 p-4 ">
@@ -15,19 +38,32 @@ export default function Cart() {
             </div>
             <Outlet />
             <div className="flex rounded-2xl flex-col gap-8 px-8 py-6 bg-white mx-4">
-                <CartProduct name="Product 1" image="https://i.pinimg.com/474x/9d/95/95/9d959515541b9f3dfa0e2fa7918ca4a2.jpg" weight="400gm" price="100" quantity="1" />
-                <CartProduct name="Product 1" image="https://i.pinimg.com/474x/9d/95/95/9d959515541b9f3dfa0e2fa7918ca4a2.jpg" weight="400gm" price="100" quantity="1" />
-                <CartProduct name="Product 1" image="https://i.pinimg.com/474x/9d/95/95/9d959515541b9f3dfa0e2fa7918ca4a2.jpg" weight="400gm" price="100" quantity="1" />
+                {Object.entries(cart).length === 0 ? (
+                    <div className="text-center text-sm font-bold">Your cart is empty</div>
+                ) : (
+                    Object.entries(cart).map(([id, quantity]) => {
+                        const product = productsData.find(p => p.id === parseInt(id));
+                        return <CartProduct 
+                        key={id}
+                        name={product.name} 
+                        image={product.image} 
+                        weight={product.weight} 
+                        price={product.price} 
+                        quantity={quantity} 
+                        onInc={() => increase(id)} 
+                        onDec={() => decrease(id)} />
+                    })
+                )}
             </div>
             <div className=" flex flex-col rounded-2xl px-4 py-3 bg-white mx-4">
                 <div className="text-lg font-bold">Bill details</div>
                 <div className="ml-1 flex text-sm justify-between">
                     <div>Items total</div>
-                    <div>₹0</div>
+                    <div>₹{itemTotal}</div>
                 </div>
                 <div className="ml-1 flex text-sm justify-between">
                     <div>Delivery charge</div>
-                    <div>₹0</div>
+                    <div>₹{delivery}</div>
                 </div>
                 <div className="ml-1 flex text-sm justify-between">
                     <div>Discount</div>
@@ -35,10 +71,10 @@ export default function Cart() {
                 </div>
                 <div className="flex justify-between mt-1 font-bold">
                     <div>Grand total</div>
-                    <div>₹0</div>
+                    <div>₹{grand}</div>
                 </div>
                 <div className="mt-3 p-3 rounded-xl bg-green-50 text-green-700 font-bold text-sm text-center">
-                    You saved <span className="text-lg">₹0</span> on this order 🎊
+                    You saved <span className="text-lg">₹{savings}</span> on this order 🎊
                 </div>
             </div>
             <button className="flex cursor-pointer hover:bg-green-700 transition bg-green-600 rounded-md px-4 py-3 mx-4 justify-between text-white">
@@ -62,6 +98,6 @@ function CartProduct(props) {
                 <div className="text-sm font-semibold">₹{props.price}</div>
             </div>
         </div>
-        <div><Counter count={1} /></div>
+        <div><Counter count={props.quantity} onIncrease={props.onInc} onDecrease={props.onDec} /></div>
     </div>)
 }

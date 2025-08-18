@@ -4,9 +4,42 @@ import Products from './Products'
 import Home from './Home'
 import Coupons from './Coupons'
 import {Accepted, Cancelled} from './Placed'
+import { useState , useEffect } from "react";
 
 
 function App() {
+
+  const [cart, setCart] = useState({});
+
+  const addToCart = (id) => {
+      setCart((prevState) => ({
+          ...prevState,
+          [id]: !prevState[id] ? 1 : prevState[id] + 1
+      }))
+  }
+
+  const increase = (id) => {
+      setCart((prevState) => ({
+          ...prevState,
+          [id]: prevState[id] + 1
+      })) 
+  }
+
+  const decrease = (id) => {
+      setCart((prev) => {
+          const newCart = { ...prev };
+          if(newCart[id] > 1) {
+              newCart[id] -= 1;
+          } else {
+              delete newCart[id];
+          }
+          return newCart;
+      }) 
+  }
+
+  useEffect(() => {
+    console.log("Cart updated:", cart);
+  }, [cart]);
 
   return (
     <>
@@ -14,8 +47,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
-          <Route path='products' element={<Products />} />
-          <Route path="cart" element={<Cart />} >
+          <Route path='products' element={<Products cart={cart} addToCart={addToCart} increase={increase} decrease={decrease} />} />
+          <Route path="cart" element={<Cart cart={cart} increase={increase} decrease={decrease} />} >
             <Route path="coupons" element={<Coupons />} />
           </Route>
           <Route path="placed">
@@ -46,7 +79,5 @@ function Layout() {
     </div>
   )
 }
-
-
 
 export default App
