@@ -23,3 +23,25 @@ export const registerUser = (async (req, res) => {
     }
 })
 
+export const loginUser = (async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const user = await User.findOne({email});
+        if(!user){
+            return res.send("User Email Not Found")
+        }
+        const passMatch =await bcrypt.compare(password, user.password);
+        if(!passMatch){
+            return res.send("Invalid Credentials!")
+        }
+        const token = jwt.sign({id: user._id, email: user.email}, process.env.JWT_SECRET);
+        res.json({
+            msg: "Login Success",
+            token
+        })
+    } catch(e){
+        res.json({
+            error: e.message
+        })
+    }
+})
