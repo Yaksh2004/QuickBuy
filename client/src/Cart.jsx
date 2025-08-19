@@ -110,7 +110,10 @@ export default function Cart({ cart, increase, decrease }) {
                     You saved <span className="text-lg">₹{savings}</span> on this order 🎊
                 </div>
             </div>
-            <button className="flex cursor-pointer hover:bg-green-700 transition bg-green-600 rounded-md px-4 py-3 mx-4 justify-between text-white">
+            <button onClick={() => {
+                let accept = Math.random()*10 > 5;
+                accept ? navigate("/placed/accepted") : navigate("/placed/cancelled");
+            }} className="flex cursor-pointer hover:bg-green-700 transition bg-green-600 rounded-md px-4 py-3 mx-4 justify-between text-white">
                 <span className="font-bold ">₹{grand}</span>
                 <span>Checkout &gt;&gt;</span>
             </button>

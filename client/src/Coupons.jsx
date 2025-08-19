@@ -3,9 +3,9 @@ import { couponsData } from "./couponsData";
 import { useEffect, useState } from "react";
 
 export default function Coupons() {
-    const { itemTotal, applyDiscount } = useOutletContext();
+    const { itemTotal, applyDiscount, selectedCoupon, setSelectedCoupon } = useOutletContext();
+
     const navigate = useNavigate();
-    const [selectedCoupon, setSelectedCoupon] = useState(null);
 
     return (
         <div className="flex justify-center items-center
