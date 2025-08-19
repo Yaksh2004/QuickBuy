@@ -29,17 +29,31 @@ export default function Cart({ cart, increase, decrease }) {
     }, [cart, discount]);
 
     useEffect(() => {
+        if (selectedCoupon){
+            const newDiscount = Math.min(
+            selectedCoupon.off * itemTotal / 100,
+            selectedCoupon.maxDiscount
+        );
+        setDiscount(newDiscount);
+        }
+
         if (selectedCoupon && itemTotal < selectedCoupon.minValue) {
             setDiscount(0);            
             setSelectedCoupon(null);   
+            localStorage.removeItem("selectedCoupon"); 
         }
     }, [itemTotal, selectedCoupon]);
 
+    useEffect(() => {
+        const savedCoupon = JSON.parse(localStorage.getItem("selectedCoupon"));
+        if (savedCoupon) setSelectedCoupon(savedCoupon);
+    }, []);
 
-    const applyDiscount = (discountValue, coupon) => {
-        setDiscount(discountValue);
-        setSelectedCoupon(coupon); 
-};
+
+    const applyDiscount = (coupon) => {
+        setSelectedCoupon(coupon);
+        localStorage.setItem("selectedCoupon", JSON.stringify(coupon));
+    }
 
 
     return (
@@ -80,6 +94,10 @@ export default function Cart({ cart, increase, decrease }) {
                     <div>Delivery charge</div>
                     <div>₹{delivery}</div>
                 </div>
+                {selectedCoupon && <div className="ml-1 flex text-sm justify-between">
+                    <div>Coupon</div>
+                    <div>{selectedCoupon.name}</div>
+                </div>}
                 <div className="ml-1 flex text-sm justify-between">
                     <div>Discount</div>
                     <div>- ₹{discount}</div>

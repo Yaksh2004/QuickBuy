@@ -31,8 +31,7 @@ export default function Coupons() {
                     onClick={() => {
                         if (selectedCoupon) {
                             const selected = couponsData.find(c => c.id === selectedCoupon);
-                            const discount = Math.min(selected.off * itemTotal / 100, selected.maxDiscount);
-                            applyDiscount(discount, selected);
+                            applyDiscount(selected);
                             navigate("/cart")
                         }
                     }}
