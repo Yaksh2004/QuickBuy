@@ -3,9 +3,9 @@ import Counter from "./Counter";
 export default function Product(props) {
     return (
         <div className="flex flex-col h-fit rounded-lg shadow-md bg-white">
-            <div className="aspect-[1/1] w-full overflow-hidden p-2">
+            <div className="aspect-[1/1] w-full overflow-hidden p-2 ">
                 <img
-                    className="h-full w-full object-cover rounded-lg"
+                    className="h-full w-full object-cover rounded-lg shadow"
                     src={props.image}
                     alt={props.name}
                 />
