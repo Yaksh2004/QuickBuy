@@ -1,14 +1,14 @@
-const express = require("express")
+import express from "express"
 const app = express();
-const dotenv = require("dotenv");
+import dotenv from "dotenv"
 dotenv.config();
 const PORT = process.env.PORT || 3000;
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
+import userRouter  from './routes/userRouter.js'
 
 
-app.get('/try', (req,res) => {
-    res.send("Hello")
-})
+app.use(express.json())
+app.use('/user', userRouter)
 
 
 mongoose.connect(process.env.MONGO_URI)
