@@ -2,6 +2,8 @@ import {BrowserRouter, Routes, Route, Link, useNavigate, Outlet} from 'react-rou
 import Cart from './Cart'
 import Products from './Products'
 import Home from './Home'
+import Login from './Login'
+import Register from './Register'
 import Coupons from './Coupons'
 import {Accepted, Cancelled} from './Placed'
 import { useState , useEffect } from "react";
@@ -47,6 +49,8 @@ function App() {
           <Route path="cart" element={<Cart cart={cart} increase={increase} decrease={decrease} />} >
             <Route path="coupons" element={<Coupons />} />
           </Route>
+          <Route path='login' element={<Login />}/>
+          <Route path='register' element={<Register />}/>
           <Route path="placed">
             <Route path="accepted" element={<Accepted />} />
             <Route path="cancelled" element={<Cancelled />} />
@@ -65,6 +69,8 @@ function Layout() {
         <Link to={"/"}>Home</Link>
         <Link to={"/products"}>Products</Link>
         <Link to={"/cart"}>Cart</Link>
+        <Link to={"/login"}>Login</Link>
+        <Link to={"/register"}>Register</Link>
       </div>
       <div className='flex flex-1 justify-center bg-gray-100'>
         <Outlet />
