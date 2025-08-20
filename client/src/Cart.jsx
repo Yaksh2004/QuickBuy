@@ -1,9 +1,8 @@
 import Counter from "./Counter";
-import { useNavigate, Outlet, useOutletContext } from "react-router-dom";
-import { productsData } from "./productsData";
+import { useNavigate, Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
 
-export default function Cart({ cart, increase, decrease }) { 
+export default function Cart({ products, cart, increase, decrease }) { 
     const navigate = useNavigate();
     const [itemTotal, setItemTotal] = useState(0);
     const [delivery, setDelivery] = useState(0);
@@ -12,29 +11,33 @@ export default function Cart({ cart, increase, decrease }) {
     const [discount, setDiscount] = useState(0);
     const [selectedCoupon, setSelectedCoupon] = useState(null);
 
-
+    // calculate totals
     useEffect(() => {
         let total = 0;
-        Object.entries(cart).forEach(([id, quantity]) => {
-            const product = productsData.find(p => p.id === parseInt(id));
+
+        cart.forEach(({ productId, _id, quantity }) => {
+            const id = productId || _id; // backend might send either
+            const product = products.find(p => p._id === id);
             if (product) total += product.price * quantity;
         });
 
         const del = total > 0 && total < 300 ? 40 : 0;
-        const save = del == 0 && total >= 300 ? 40 + discount : discount;
+        const save = del === 0 && total >= 300 ? 40 + discount : discount;
+
         setItemTotal(total);
         setDelivery(del);
         setSavings(save);
         setGrand(total + del - discount);
-    }, [cart, discount]);
+    }, [cart, discount, products]);
 
+    // apply/remove coupon
     useEffect(() => {
-        if (selectedCoupon){
+        if (selectedCoupon) {
             const newDiscount = Math.min(
-            selectedCoupon.off * itemTotal / 100,
-            selectedCoupon.maxDiscount
-        );
-        setDiscount(newDiscount);
+                (selectedCoupon.off * itemTotal) / 100,
+                selectedCoupon.maxDiscount
+            );
+            setDiscount(newDiscount);
         }
 
         if (selectedCoupon && itemTotal < selectedCoupon.minValue) {
@@ -44,17 +47,16 @@ export default function Cart({ cart, increase, decrease }) {
         }
     }, [itemTotal, selectedCoupon]);
 
+    // load saved coupon from storage
     useEffect(() => {
         const savedCoupon = JSON.parse(localStorage.getItem("selectedCoupon"));
         if (savedCoupon) setSelectedCoupon(savedCoupon);
     }, []);
 
-
     const applyDiscount = (coupon) => {
         setSelectedCoupon(coupon);
         localStorage.setItem("selectedCoupon", JSON.stringify(coupon));
-    }
-
+    };
 
     return (
         <div className="w-full max-w-3xl flex flex-col gap-5 py-5 ">
@@ -63,28 +65,40 @@ export default function Cart({ cart, increase, decrease }) {
             </div>
             <div className="rounded-2xl px-8 py-6 items-center bg-white mx-4 flex justify-between">
                 <div className="font-bold text-sm">Apply Coupon</div>
-                <button onClick={() => navigate("coupons")} className="cursor-pointer rounded-md hover:bg-red-600 hover:text-white transition border border-red-600 font-bold text-sm px-5 py-1 text-red-600">Apply</button>
+                <button 
+                    onClick={() => navigate("coupons")} 
+                    className="cursor-pointer rounded-md hover:bg-red-600 hover:text-white transition border border-red-600 font-bold text-sm px-5 py-1 text-red-600">
+                    Apply
+                </button>
             </div>
             <Outlet context={{ itemTotal, applyDiscount, selectedCoupon, setSelectedCoupon }} />
+
             <div className="flex rounded-2xl flex-col gap-8 px-8 py-6 bg-white mx-4">
-                {Object.entries(cart).length === 0 ? (
+                {cart.length === 0 ? (
                     <div className="text-center text-sm font-bold">Your cart is empty</div>
                 ) : (
-                    Object.entries(cart).map(([id, quantity]) => {
-                        const product = productsData.find(p => p.id === parseInt(id));
-                        return <CartProduct 
-                        key={id}
-                        name={product.name} 
-                        image={product.image} 
-                        weight={product.weight} 
-                        price={product.price} 
-                        quantity={quantity} 
-                        onInc={() => increase(id)} 
-                        onDec={() => decrease(id)} />
+                    cart.map(({ productId, _id, quantity }) => {
+                        const id = productId || _id;
+                        const product = products.find(p => p._id === id);
+                        if (!product) return null;
+
+                        return (
+                            <CartProduct
+                                key={id}
+                                name={product.name}
+                                image={product.image}
+                                weight={product.weight}
+                                price={product.price}
+                                quantity={quantity}
+                                onInc={() => increase(id)}
+                                onDec={() => decrease(id)}
+                            />
+                        );
                     })
                 )}
             </div>
-            <div className=" flex flex-col rounded-2xl px-4 py-3 bg-white mx-4">
+
+            <div className="flex flex-col rounded-2xl px-4 py-3 bg-white mx-4">
                 <div className="text-lg font-bold">Bill details</div>
                 <div className="ml-1 flex text-sm justify-between">
                     <div>Items total</div>
@@ -94,10 +108,12 @@ export default function Cart({ cart, increase, decrease }) {
                     <div>Delivery charge</div>
                     <div>₹{delivery}</div>
                 </div>
-                {selectedCoupon && <div className="ml-1 flex text-sm justify-between">
-                    <div>Coupon</div>
-                    <div>{selectedCoupon.name}</div>
-                </div>}
+                {selectedCoupon && (
+                    <div className="ml-1 flex text-sm justify-between">
+                        <div>Coupon</div>
+                        <div>{selectedCoupon.name}</div>
+                    </div>
+                )}
                 <div className="ml-1 flex text-sm justify-between">
                     <div>Discount</div>
                     <div>- ₹{discount}</div>
@@ -110,30 +126,36 @@ export default function Cart({ cart, increase, decrease }) {
                     You saved <span className="text-lg">₹{savings}</span> on this order 🎊
                 </div>
             </div>
-            <button onClick={() => {
-                let accept = Math.random()*10 > 5;
-                accept ? navigate("/placed/accepted") : navigate("/placed/cancelled");
-            }} className="flex cursor-pointer hover:bg-green-700 transition bg-green-600 rounded-md px-4 py-3 mx-4 justify-between text-white">
+
+            <button 
+                onClick={() => {
+                    let accept = Math.random() * 10 > 5;
+                    accept ? navigate("/placed/accepted") : navigate("/placed/cancelled");
+                }} 
+                className="flex cursor-pointer hover:bg-green-700 transition bg-green-600 rounded-md px-4 py-3 mx-4 justify-between text-white">
                 <span className="font-bold ">₹{grand}</span>
                 <span>Checkout &gt;&gt;</span>
             </button>
         </div>
-    )
+    );
 }
 
 function CartProduct(props) {
     return (
-    <div className="flex items-center justify-between w-full">
-        <div className="flex">
-            <div className="rounded-lg overflow-hidden">
-                <img className="h-20 w-20 object-cover" src={props.image} alt={props.name} />
+        <div className="flex items-center justify-between w-full">
+            <div className="flex">
+                <div className="rounded-lg overflow-hidden">
+                    <img className="h-20 w-20 object-cover" src={props.image} alt={props.name} />
+                </div>
+                <div className="flex flex-col ml-4">
+                    <div className="text-sm">{props.name}</div>
+                    <div className="text-sm text-gray-500">{props.weight}</div>
+                    <div className="text-sm font-semibold">₹{props.price}</div>
+                </div>
             </div>
-            <div className="flex flex-col ml-4">
-                <div className="text-sm">{props.name}</div>
-                <div className="text-sm text-gray-500">{props.weight}</div>
-                <div className="text-sm font-semibold">₹{props.price}</div>
+            <div>
+                <Counter count={props.quantity} onIncrease={props.onInc} onDecrease={props.onDec} />
             </div>
         </div>
-        <div><Counter count={props.quantity} onIncrease={props.onInc} onDecrease={props.onDec} /></div>
-    </div>)
+    );
 }
