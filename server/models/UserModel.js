@@ -24,6 +24,7 @@ const userSchema = mongoose.Schema({
         {
             products: [
                 {
+                    productName: String,
                     productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
                     quantity: Number,
                     price: Number
@@ -33,7 +34,7 @@ const userSchema = mongoose.Schema({
             discount: Number,
             delivery: Number,
             grandTotal: Number,
-            appliedCoupon: { type: mongoose.Schema.Types.ObjectId, ref: "Coupon" },
+            appliedCoupon: String,
             createdAt: { type: Date, default: Date.now }
         }
     ]

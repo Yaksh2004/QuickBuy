@@ -5,6 +5,7 @@ import Home from './Home'
 import Login from './Login'
 import Register from './Register'
 import Coupons from './Coupons'
+import Orders from './Orders'
 import {Accepted, Cancelled} from './Placed'
 import { useState , useEffect } from "react";
 import axios from "axios";
@@ -148,6 +149,7 @@ const decrease = (productId) => {
             <Route path="coupons" element={<Coupons />} />
           </Route>
           <Route path='login' element={<Login />}/>
+          <Route path='orders' element={<Orders />}/>
           <Route path='register' element={<Register />}/>
           <Route path="placed">
             <Route path="accepted" element={<Accepted />} />
@@ -168,6 +170,7 @@ function Layout() {
         <Link to={"/products"}>Products</Link>
         <Link to={"/cart"}>Cart</Link>
         <Link to={"/login"}>Login</Link>
+        <Link to={"/orders"}>Orders</Link>
         <Link to={"/register"}>Register</Link>
       </div>
       <div className='flex flex-1 justify-center bg-gray-100'>

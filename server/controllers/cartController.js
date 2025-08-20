@@ -68,6 +68,7 @@ export const checkoutCart = async (req, res) => {
         const productsForOrder = user.cart.map((item) => {
             total += item.productId.price * item.quantity;
             return {
+                productName: item.productId.name,
                 productId: item.productId._id,
                 quantity: item.quantity,
                 price: item.productId.price
@@ -98,9 +99,9 @@ export const checkoutCart = async (req, res) => {
             discount,
             delivery,
             grandTotal,
-            appliedCoupon: appliedCoupon?._id
+            appliedCoupon: appliedCoupon? appliedCoupon.name : null
         });
-
+        
         // clear cart
         user.cart = [];
 
