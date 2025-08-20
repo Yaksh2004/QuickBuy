@@ -1,5 +1,4 @@
 import User from "../models/UserModel.js"
-import Product from "../models/ProductModel.js"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 
