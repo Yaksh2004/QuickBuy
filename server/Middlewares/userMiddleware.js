@@ -14,7 +14,7 @@ export const newUserValidate = (req, res, next) => {
 export const loginUserValidate = (req, res, next) => {
     const result = loginUserSchema.safeParse(req.body);
      if(!result.success){
-        return res.json({
+        return res.status(400).json({
             error: result.error.issues
         })
     }
