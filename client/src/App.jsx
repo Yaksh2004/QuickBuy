@@ -104,7 +104,36 @@ const decrease = (productId) => {
     .post("http://localhost:3000/cart/decrease", { productId }, { headers: getAuthHeaders() })
     .then((res) => setCart(res.data.cart))
     .catch(console.error);
+  };
+
+  const handleCheckout = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const coupon = JSON.parse(localStorage.getItem("selectedCoupon")); // may be null
+    try {
+        const response = await axios.post(
+            "http://localhost:3000/cart/checkout",
+            {
+                couponId: coupon?._id, // send if selected
+            },
+            {
+                headers: { Authorization: `${token}` },
+            }
+        );
+
+        // backend will send { success: true/false }
+        if (response.data.success) {
+            navigate("/placed/accepted");
+        } else {
+            navigate("/placed/cancelled");
+        }
+    } catch (err) {
+        console.error("Checkout failed:", err);
+        navigate("/placed/cancelled");
+    }
 };
+
 
 
 

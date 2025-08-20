@@ -13,6 +13,7 @@ export default function Coupons() {
     }, []);
 
     const navigate = useNavigate();
+    
 
     return (
         <div className="flex justify-center items-center w-full">
@@ -28,7 +29,6 @@ export default function Coupons() {
                     </button>
                 </div>
 
-                {/* Coupon list */}
                 <div className="px-2 overflow-y-auto max-h-[360px]">
                     {coupons.map((coupon) => (
                         <Coupon

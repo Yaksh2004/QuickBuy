@@ -1,6 +1,7 @@
 import Counter from "./Counter";
 import { useNavigate, Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
+import axios from "axios";
 
 export default function Cart({ products, cart, increase, decrease }) { 
     const navigate = useNavigate();
@@ -30,7 +31,8 @@ export default function Cart({ products, cart, increase, decrease }) {
         setGrand(total + del - discount);
     }, [cart, discount, products]);
 
-    // apply/remove coupon
+    
+
     useEffect(() => {
         if (selectedCoupon) {
             const newDiscount = Math.min(
@@ -47,7 +49,7 @@ export default function Cart({ products, cart, increase, decrease }) {
         }
     }, [itemTotal, selectedCoupon]);
 
-    // load saved coupon from storage
+
     useEffect(() => {
         const savedCoupon = JSON.parse(localStorage.getItem("selectedCoupon"));
         if (savedCoupon) setSelectedCoupon(savedCoupon);
@@ -56,6 +58,34 @@ export default function Cart({ products, cart, increase, decrease }) {
     const applyDiscount = (coupon) => {
         setSelectedCoupon(coupon);
         localStorage.setItem("selectedCoupon", JSON.stringify(coupon));
+    };
+
+    const handleCheckout = async () => {
+        const token = localStorage.getItem("token");
+        if (!token) return; 
+
+        const coupon = JSON.parse(localStorage.getItem("selectedCoupon")); // may be null
+        try {
+            const response = await axios.post(
+                "http://localhost:3000/cart/checkout",
+                {
+                    couponId: coupon?._id, // send if selected
+                },
+                {
+                    headers: { Authorization: `${token}` },
+                }
+            );
+
+            // backend will send { success: true/false }
+            if (response.data.success) {
+                navigate("/placed/accepted");
+            } else {
+                navigate("/placed/cancelled");
+            }
+        } catch (err) {
+            console.error("Checkout failed:", err);
+            navigate("/placed/cancelled");
+        }
     };
 
     return (
@@ -127,11 +157,7 @@ export default function Cart({ products, cart, increase, decrease }) {
                 </div>
             </div>
 
-            <button 
-                onClick={() => {
-                    let accept = Math.random() * 10 > 5;
-                    accept ? navigate("/placed/accepted") : navigate("/placed/cancelled");
-                }} 
+            <button onClick={handleCheckout} 
                 className="flex cursor-pointer hover:bg-green-700 transition bg-green-600 rounded-md px-4 py-3 mx-4 justify-between text-white">
                 <span className="font-bold ">₹{grand}</span>
                 <span>Checkout &gt;&gt;</span>
